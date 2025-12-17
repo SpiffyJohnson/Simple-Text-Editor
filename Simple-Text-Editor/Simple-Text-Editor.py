@@ -11,7 +11,6 @@
 # TODO: Focus on cross-OS functionality
 # TODO: Add 'Browse' command to create a copy of the chosen text file in the Files folder for editing.
 # TODO: Better error handling/explanation + input sanitization
-# TODO: Add command memory for ease of use (semi-implemented)
 # TODO: Try to deal with funky app resizing.
 #---------------------------------------------------------------------------------------------
 
@@ -27,13 +26,15 @@ baseFont = ("Monospace", 24)
 bgColor = "#090952"
 fgColor = "#FFFFFF"
 greyColor = "#383838"
-global mostRecentCommand
-mostRecentCommand = ""
 lineChar = "-"
 global isFullscreen
 isFullscreen = True
 global currentlyOpenedFile
 currentlyOpenedFile = ""
+global pastCommands
+pastCommands = []
+global pastCommandCounter
+pastCommandCounter = -1
 
 commands = [
     ("LOAD", "OPEN", "L"),
@@ -136,8 +137,12 @@ def OnLoad(path, event=None):
 
 def ExecuteCommand(event):
     global CommandEntry
-    global mostRecentCommand
-    mostRecentCommand = command = (CommandEntry.get())
+    global pastCommands
+    global pastCommandCounter
+    
+    pastCommandCounter = -1
+    command = (CommandEntry.get())
+    pastCommands = [CommandEntry.get()] + pastCommands
     CommandEntry.delete(0, tk.END)
     keywords = command.split(' ')
     keywords += [""]
@@ -272,10 +277,21 @@ def OnFlip():
     TextEditor.insert("1.0", text[::-1])
 
 # Used for command memory
-def OnUp(event):
+def OnUpOrDown(direction):
     global CommandEntry
-    CommandEntry.delete(0, tk.END)
-    CommandEntry.insert(0, mostRecentCommand)
+    global pastCommands
+    global pastCommandCounter
+    try:
+        pastCommands[pastCommandCounter + direction] # just make sure that an out of range error isn't thrown.
+        if pastCommandCounter + direction > -2:
+            pastCommandCounter += direction
+            if pastCommandCounter == -1:
+                CommandEntry.delete(0, tk.END)
+            else:
+                CommandEntry.delete(0, tk.END)
+                CommandEntry.insert(0, pastCommands[pastCommandCounter])
+    except IndexError:
+        pass
 
 def OnMinimize(event):
     global isFullscreen
@@ -317,7 +333,8 @@ root.bind("<Control-s>", OnSaveShortcut)
 root.bind("<Control-S>", OnSaveShortcut)
 root.bind("<Control-o>", OnLoad)
 root.bind("<Control-Tab>", lambda: CommandEntry.focus())
-CommandEntry.bind("<Up>", OnUp)
+CommandEntry.bind("<Up>", lambda event: OnUpOrDown(1))
+CommandEntry.bind("<Down>", lambda event: OnUpOrDown(-1))
 CommandEntry.bind("<Return>", ExecuteCommand)
 
 root.mainloop()
