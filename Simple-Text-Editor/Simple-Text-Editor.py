@@ -2,7 +2,7 @@
 # Author: Samuel Johnson
 # Program: Simple-Text-Editor
 # Use: A rather gimmicky Tkinter text editor that uses a terminal rather than a toolbar or buttons
-# Last Updated: 12/16/2025
+# Last Updated: 12/17/2025
 #
 # TODO: Maybe convert this over to customtkinter, since I really want to have more font control
 # TODO: Overhaul the ExecuteCommand() function to rely less on 'if' statements
