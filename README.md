@@ -1,4 +1,5 @@
 # Simple-Text-Editor
+
 A small text editor with new/save/load functionality, all from a terminal-based interface.
 
 Still thoroughly in the work-in-progress phase.
@@ -6,12 +7,14 @@ Still thoroughly in the work-in-progress phase.
 Written using the Tkinter graphical library for Python.
 
 Features:
+---
 * Terminal-based navigation with commands
 * File opening, editing, and saving
 * Command memory via the up- and down-arrow keys
-* Colorscheme manipulation, including presets and custom fg and bg control
+* Colorscheme manipulation, including presets and custom foreground and background commands
 
 List of commands:
+---
 * LOAD, OPEN, L,                  - Load file by name
 * SAVE, S,                        - Save file by name
 * DELETE, DESTROY, DEL,           - Delete file by name
@@ -25,4 +28,5 @@ List of commands:
 * HELP, ?,                        - List available commands
 
 Dependencies:
+---
 * Python & Tkinter
