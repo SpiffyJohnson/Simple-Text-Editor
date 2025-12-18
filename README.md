@@ -9,7 +9,7 @@ Features:
 * Terminal-based navigation with commands
 * File opening, editing, and saving
 * Command memory via the up- and down-arrow keys
-* Colorscheme manipulation, including presets and custom control
+* Colorscheme manipulation, including presets and custom fg and bg control
 
 List of commands:
 * LOAD, OPEN, L,                  - Load file by name
