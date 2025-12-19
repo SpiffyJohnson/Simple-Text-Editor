@@ -183,6 +183,8 @@ def ExecuteCommand(event):
         OnDelete(keywords[1])
     elif keywords[0].upper() == "FLIP":
         OnFlip()
+    elif keywords[0].upper() == "CENTER":
+        OnCenter(keywords[1])
     else:
         WarningText.config(text="Invalid command")
         
@@ -288,6 +290,22 @@ def OnFlip():
     text = TextEditor.get("1.0", "end-1c")
     TextEditor.delete("1.0", tk.END)
     TextEditor.insert("1.0", text[::-1])
+
+# Changes the justification of the main textbox
+def OnCenter(doCenter = "on"):
+    global TextEditor
+    global WarningText
+    if doCenter.upper() == "ON":
+
+        TextEditor.tag_configure("justify", justify="center")
+        TextEditor.tag_add("justify", "1.0", "end")
+        WarningText.config(text="Centered text")
+    elif doCenter.upper() == "OFF":
+        TextEditor.tag_configure("justify", justify="left")
+        TextEditor.tag_add("justify", "1.0", "end")
+        WarningText.config(text="Aligned text left")
+    else:
+        WarningText.config(text="Invalid centering: use 'on' or 'off'")
 
 # Used for command memory
 def OnUpOrDown(direction):
