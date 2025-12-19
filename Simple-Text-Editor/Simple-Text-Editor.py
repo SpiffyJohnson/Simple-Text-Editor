@@ -2,9 +2,9 @@
 # Author: Samuel Johnson
 # Program: Simple-Text-Editor
 # Use: A rather gimmicky Tkinter text editor that uses a terminal rather than a toolbar or buttons
-# Last Updated: 12/17/2025
+# Last Updated: 12/16/2025
 #
-# TODO: Maybe convert this over to customtkinter, since I really want to have more font control
+# TODO: Maybe convert this over to customtkinter or Kivy, since I really want to have more font control
 # TODO: Overhaul the ExecuteCommand() function to rely less on 'if' statements
 # TODO: Add 'HELP' keywords to each command to display syntax and options
 # TODO: I might split this single document into several to avoid having one long file as this improves
@@ -15,6 +15,7 @@
 #---------------------------------------------------------------------------------------------
 
 import tkinter as tk
+from tkinter import filedialog
 import pathlib
 import os
 
@@ -40,6 +41,7 @@ commands = [
     ("LOAD", "OPEN", "L"),
     ("SAVE", "S"),
     ("DELETE", "DESTROY", "DEL"),
+    ("BROWSE", "FIND"),
     ("NEW", "CLEAR", "WIPE"),
     ("LIST", "LS", "FILES"),
     ("BGCOLOR", "COLOR", "BGC", "C"),
@@ -54,6 +56,7 @@ commandsHelp = [
     "# Load file by name\n",
     "# Save file by name\n",
     "# Delete file by name\n",
+    "# Browse for a specific file\n",
     "# Empty text box\n",
     "# Show available files\n",
     "# Change background color\n",
@@ -114,13 +117,21 @@ def OnSaveShortcut(event=None):
     global currentlyOpenedFile
     OnSave(currentlyOpenedFile)
 
-def OnLoad(path, event=None):
+def OnLoad(path, isBrowse = False, event=None):
     global TextEditor
     global currentlyOpenedFile
     loadedFile = ""
 
     try:
-        file = open(os.path.join(filesPath, path), 'r')
+        if not isBrowse:
+            file = open(os.path.join(filesPath, path), 'r')
+        else:
+            path = filedialog.askopenfilename(
+                defaultextension=".txt",
+                filetypes=[("Text Files", "*.txt")],
+                initialdir=(filesPath)
+            )
+            file = open(path, 'r')
         lines = file.readlines()
         file.close()
         
@@ -154,6 +165,8 @@ def ExecuteCommand(event):
         SetColorscheme(keywords[1])
     elif keywords[0].upper() == "LOAD" or keywords[0].upper() == "OPEN" or keywords[0].upper() == "L":
         OnLoad(keywords[1])
+    elif keywords[0].upper() == "BROWSE" or keywords[0].upper() == "FIND":
+        OnLoad(keywords[0], True)
     elif keywords[0].upper() == "SAVE" or keywords[0].upper() == "S":
         OnSave(keywords[1])
     elif keywords[0].upper() == "EXIT" or keywords[0].upper() == "QUIT" or keywords[0].upper() == "STOP" or keywords[0].upper() == "CLOSE":
