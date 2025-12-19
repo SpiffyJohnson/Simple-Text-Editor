@@ -2,14 +2,13 @@
 # Author: Samuel Johnson
 # Program: Simple-Text-Editor
 # Use: A rather gimmicky Tkinter text editor that uses a terminal rather than a toolbar or buttons
-# Last Updated: 12/16/2025
+# Last Updated: 12/19/2025
 #
 # TODO: Maybe convert this over to customtkinter or Kivy, since I really want to have more font control
 # TODO: Overhaul the ExecuteCommand() function to rely less on 'if' statements
 # TODO: Add 'HELP' keywords to each command to display syntax and options
 # TODO: I might split this single document into several to avoid having one long file as this improves
 # TODO: Focus on cross-OS functionality
-# TODO: Add 'Browse' command to create a copy of the chosen text file in the Files folder for editing.
 # TODO: Better error handling/explanation + input sanitization
 # TODO: Try to deal with funky app resizing.
 #---------------------------------------------------------------------------------------------
