@@ -18,6 +18,7 @@ List of commands:
 * LOAD, OPEN, L,                  - Load file by name
 * SAVE, S,                        - Save file by name
 * DELETE, DESTROY, DEL,           - Delete file by name
+* BROWSE, FIND                    - Browse for a specific file
 * NEW, CLEAR, WIPE,               - Empty text box
 * LIST, LS, FILES,                - Show available files
 * BGCOLOR, COLOR, BGC, C,         - Change background color
