@@ -11,6 +11,7 @@ Features:
 * Terminal-based navigation with commands
 * File opening, editing, and saving
 * Command memory via the up- and down-arrow keys
+* Command information (aliases, syntax, and example) via the help keyword
 * Colorscheme manipulation, including presets and custom foreground and background commands
 
 List of commands:
