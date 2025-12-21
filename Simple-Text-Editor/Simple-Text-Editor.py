@@ -66,6 +66,21 @@ commandsHelp = [
     "# List available commands\n",
 ]
 
+commandsInDepthHelp = [
+    "Aliases: LOAD, OPEN, L; \nSyntax: LOAD <Filename>; \nExample: load test.txt\n",
+    "Aliases: SAVE, S; \nSyntax: SAVE <Filename>; \nExample: save test.txt\n",
+    "Aliases: DELETE, DESTROY, DEL; \nSyntax: DELETE <Filename>; \nExample: delete test.txt\n",
+    "Aliases: BROWSE, FIND; \nSyntax: BROWSE; \nExample: browse\n",
+    "Aliases: NEW, CLEAR, WIPE; \nSyntax: NEW; \nExample: new\n",
+    "Aliases: LIST, LS, FILES; \nSyntax: LIST; \nExample: ls\n",
+    "Aliases: BGCOLOR, COLOR, BGC, C; \nSyntax: BGCOLOR <Hex string>; \nExample: bgcolor #FF0000\n",
+    "Aliases: FGCOLOR, FGC; \nSyntax: FGCOLOR <Hex string>; \nExample: fgcolor #006600\n",
+    "Aliases: COLORSCHEME, CS; \nSyntax: COLORSCHEME <Colorscheme name>; \nExample: colorscheme moon\n",
+    "Aliases: RESET, REBOOT, REFRESH; \nSyntax: REBOOT; \nExample: reboot\n",
+    "Aliases: EXIT, QUIT, STOP, CLOSE; \nSyntax: CLOSE; \nExample: close\n",
+    "Aliases: HELP, ?; \nSyntax: HELP; \nExample: help\n",
+]
+
 themes = [
     "DRDARK", 
     "LIGHTMODE", 
@@ -101,6 +116,10 @@ themeCodes = [
 ]
 
 def OnSave(path, event=None):
+    if path.upper() == "HELP":
+        ListHelp(1)
+        return
+    
     global TextEditor
     global WarningText
     try:
@@ -117,6 +136,13 @@ def OnSaveShortcut(event=None):
     OnSave(currentlyOpenedFile)
 
 def OnLoad(path, isBrowse = False, event=None):
+    if path.upper() == "HELP":
+        if isBrowse:
+            ListHelp(3)
+        else:
+            ListHelp(0)
+        return
+    
     global TextEditor
     global currentlyOpenedFile
     loadedFile = ""
@@ -171,13 +197,13 @@ def ExecuteCommand(event):
     elif keywords[0].upper() == "EXIT" or keywords[0].upper() == "QUIT" or keywords[0].upper() == "STOP" or keywords[0].upper() == "CLOSE":
         OnEscape()
     elif keywords[0].upper() == "NEW" or keywords[0].upper() == "CLEAR" or keywords[0].upper() == "WIPE":
-        OnNew()
+        OnNew(keywords[1])
     elif keywords[0].upper() == "RESET" or keywords[0].upper() == "REBOOT" or keywords[0].upper() == "REFRESH":
-        OnReset()
+        OnReset(keywords[1])
     elif keywords[0].upper() == "HELP" or keywords[0].upper() == "?" or keywords[0].upper() == "'HELP'":
         OnHelp()
     elif keywords[0].upper() == "LIST" or keywords[0].upper() == "LS" or keywords[0].upper() == "FILES":
-        OnList()
+        OnList(keywords[1])
     elif keywords[0].upper() == "DELETE" or keywords[0].upper() == "DESTROY" or keywords[0].upper() == "DEL":
         OnDelete(keywords[1])
     elif keywords[0].upper() == "FLIP":
@@ -189,6 +215,10 @@ def ExecuteCommand(event):
         
 
 def SetBGColor(color):
+    if color.upper() == "HELP":
+        ListHelp(6)
+        return
+    
     global CommandEntry
     global TextEditor
     if "#" not in color:
@@ -201,6 +231,10 @@ def SetBGColor(color):
         WarningText.config(text="Invalid color")
 
 def SetFGColor(color):
+    if color.upper() == "HELP":
+        ListHelp(7)
+        return
+    
     global CommandEntry
     global TextEditor
     if "#" not in color:
@@ -213,6 +247,10 @@ def SetFGColor(color):
         WarningText.config(text="Invalid color")
 
 def SetColorscheme(colorscheme):
+    if colorscheme.upper() == "HELP":
+        ListHelp(8)
+        return
+
     global CommandEntry
     global TextEditor
     global WarningText
@@ -235,13 +273,19 @@ def SetColorscheme(colorscheme):
         WarningText.config(text="Invalid colorscheme")
 
 
-def OnNew(event=None):
+def OnNew(keyword, event=None):
+    if keyword.upper() == "HELP":
+        ListHelp(4)
+        return
     global TextEditor
     global WarningText
     TextEditor.delete("1.0", tk.END)
     WarningText.config(text="Cleared screen")
 
-def OnReset():
+def OnReset(keyword):
+    if keyword.upper() == "HELP":
+        ListHelp(9)
+        return
     SetColorscheme("OFF")
     OnNew()
     global WarningText
@@ -264,7 +308,20 @@ def OnHelp():
     WarningText.config(text="Listed commands")
     TextEditor.see(tk.END)
 
-def OnList():
+def ListHelp(commandId):
+    global TextEditor
+    TextEditor.insert("end-1c", "\n\n" + (lineChar * 59) + f"\n\n{commands[commandId]}:\n\n" + (lineChar * 59) + "\n\n")
+
+    TextEditor.insert("end-1c", (commandsHelp[commandId] + "\n" + commandsInDepthHelp[commandId]))
+
+    TextEditor.insert("end-1c", "\n" + (lineChar * 59) + "\n")
+    WarningText.config(text="Listed syntax")
+    TextEditor.see(tk.END)
+
+def OnList(keyword):
+    if keyword.upper() == "HELP":
+        ListHelp(5)
+        return
     global TextEditor
     WarningText
 
@@ -276,6 +333,9 @@ def OnList():
     TextEditor.see(tk.END)
 
 def OnDelete(path):
+    if path.upper() == "HELP":
+        ListHelp(2)
+        return
     global WarningText
     try:
         os.remove(currentPythonFilePath + "/Files/" + path)
