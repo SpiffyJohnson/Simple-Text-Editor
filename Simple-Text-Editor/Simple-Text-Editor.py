@@ -49,6 +49,8 @@ commands = [
     ("RESET", "REBOOT", "REFRESH"),
     ("EXIT", "QUIT", "STOP", "CLOSE"),
     ("HELP", "?"),
+    ("FLIP", "MIRROR"),
+    ("CENTER", "JUSTIFY"),
 ]
 
 commandsHelp = [
@@ -64,6 +66,8 @@ commandsHelp = [
     "# Reboot the application\n",
     "# Close the application\n",
     "# List available commands\n",
+    "# Mirror the text on screen.\n",
+    "# Toggle text centering\n",
 ]
 
 commandsInDepthHelp = [
@@ -79,6 +83,8 @@ commandsInDepthHelp = [
     "Aliases: RESET, REBOOT, REFRESH; \nSyntax: REBOOT; \nExample: reboot\n",
     "Aliases: EXIT, QUIT, STOP, CLOSE; \nSyntax: CLOSE; \nExample: close\n",
     "Aliases: HELP, ?; \nSyntax: HELP; \nExample: help\n",
+    "Aliases: FLIP, MIRROR; \nSyntax: FLIP; \nExample: flip\n",
+    "Aliases: CENTER, JUSTIFY; \nSyntax: CENTER; \nExample: center on\n",
 ]
 
 themes = [
@@ -115,25 +121,48 @@ themeCodes = [
     ("#000", "#000", "#000", "#000"),
 ]
 
-def OnSave(path, event=None):
-    if path.upper() == "HELP":
-        ListHelp(1)
-        return
+def ExecuteCommand(event):
+    global CommandEntry
+    global pastCommands
+    global pastCommandCounter
     
-    global TextEditor
-    global WarningText
-    try:
-        file = open(os.path.join(filesPath, path), 'w')
-        text = TextEditor.get("1.0", "end-1c")
-        file.writelines(text)
-        file.close()
-        WarningText.config(text="Saved file " + path)
-    except:
-        WarningText.config(text="Error saving file")
+    pastCommandCounter = -1
+    command = (CommandEntry.get())
+    pastCommands = [CommandEntry.get()] + pastCommands
+    CommandEntry.delete(0, tk.END)
+    keywords = command.split(' ')
+    keywords += [""]
 
-def OnSaveShortcut(event=None):
-    global currentlyOpenedFile
-    OnSave(currentlyOpenedFile)
+    if keywords[0].upper() in commands[0]:
+        OnLoad(keywords[1])
+    elif keywords[0].upper() in commands[1]:
+        OnSave(keywords[1])
+    elif keywords[0].upper() in commands[2]:
+        OnDelete(keywords[1])
+    elif keywords[0].upper() in commands[3]:
+        OnLoad(keywords[0], True)
+    elif keywords[0].upper() in commands[4]:
+        OnNew(keywords[1])
+    elif keywords[0].upper() in commands[5]:
+        OnList(keywords[1])
+    elif keywords[0].upper() in commands[6]:
+        SetBGColor(keywords[1])
+    elif keywords[0].upper() in commands[7]:
+        SetFGColor(keywords[1])
+    elif keywords[0].upper() in commands[8]:
+        SetColorscheme(keywords[1])
+    elif keywords[0].upper() in commands[9]:
+        OnReset(keywords[1])
+    elif keywords[0].upper() in commands[10]:
+        OnEscape(keywords[1])
+    elif keywords[0].upper() in commands[11]:
+        OnHelp(keywords[1])
+    elif keywords[0].upper() in commands[12]:
+        OnFlip(keywords[1])
+    elif keywords[0].upper() in commands[13]:
+        OnCenter(keywords[1])
+    else:
+        WarningText.config(text="Invalid command")
 
 def OnLoad(path, isBrowse = False, event=None):
     if path.upper() == "HELP":
@@ -171,48 +200,59 @@ def OnLoad(path, isBrowse = False, event=None):
     except:
         WarningText.config(text="Error opening file")
 
-def ExecuteCommand(event):
-    global CommandEntry
-    global pastCommands
-    global pastCommandCounter
+def OnSave(path, event=None):
+    if path.upper() == "HELP":
+        ListHelp(1)
+        return
     
-    pastCommandCounter = -1
-    command = (CommandEntry.get())
-    pastCommands = [CommandEntry.get()] + pastCommands
-    CommandEntry.delete(0, tk.END)
-    keywords = command.split(' ')
-    keywords += [""]
-    if keywords[0].upper() == "BGCOLOR" or keywords[0].upper() == "COLOR" or keywords[0].upper() == "C" or keywords[0].upper() == "BGC":
-        SetBGColor(keywords[1])
-    elif keywords[0].upper() == "FGCOLOR" or keywords[0].upper() == "FGC":
-        SetFGColor(keywords[1])
-    elif keywords[0].upper() == "COLORSCHEME" or keywords[0].upper() == "CS":
-        SetColorscheme(keywords[1])
-    elif keywords[0].upper() == "LOAD" or keywords[0].upper() == "OPEN" or keywords[0].upper() == "L":
-        OnLoad(keywords[1])
-    elif keywords[0].upper() == "BROWSE" or keywords[0].upper() == "FIND":
-        OnLoad(keywords[0], True)
-    elif keywords[0].upper() == "SAVE" or keywords[0].upper() == "S":
-        OnSave(keywords[1])
-    elif keywords[0].upper() == "EXIT" or keywords[0].upper() == "QUIT" or keywords[0].upper() == "STOP" or keywords[0].upper() == "CLOSE":
-        OnEscape()
-    elif keywords[0].upper() == "NEW" or keywords[0].upper() == "CLEAR" or keywords[0].upper() == "WIPE":
-        OnNew(keywords[1])
-    elif keywords[0].upper() == "RESET" or keywords[0].upper() == "REBOOT" or keywords[0].upper() == "REFRESH":
-        OnReset(keywords[1])
-    elif keywords[0].upper() == "HELP" or keywords[0].upper() == "?" or keywords[0].upper() == "'HELP'":
-        OnHelp()
-    elif keywords[0].upper() == "LIST" or keywords[0].upper() == "LS" or keywords[0].upper() == "FILES":
-        OnList(keywords[1])
-    elif keywords[0].upper() == "DELETE" or keywords[0].upper() == "DESTROY" or keywords[0].upper() == "DEL":
-        OnDelete(keywords[1])
-    elif keywords[0].upper() == "FLIP":
-        OnFlip()
-    elif keywords[0].upper() == "CENTER":
-        OnCenter(keywords[1])
-    else:
-        WarningText.config(text="Invalid command")
+    global TextEditor
+    global WarningText
+    try:
+        file = open(os.path.join(filesPath, path), 'w')
+        text = TextEditor.get("1.0", "end-1c")
+        file.writelines(text)
+        file.close()
+        WarningText.config(text="Saved file " + path)
+    except:
+        WarningText.config(text="Error saving file")
+
+def OnSaveShortcut(event=None):
+    global currentlyOpenedFile
+    OnSave(currentlyOpenedFile)
+
+def OnDelete(path):
+    if path.upper() == "HELP":
+        ListHelp(2)
+        return
+    global WarningText
+    try:
+        os.remove(currentPythonFilePath + "/Files/" + path)
+        WarningText.config(text="Deleted file " + path.upper())
+    except:
+        WarningText.config(text="Error deleting file")
         
+def OnNew(keyword, event=None):
+    if keyword.upper() == "HELP":
+        ListHelp(4)
+        return
+    global TextEditor
+    global WarningText
+    TextEditor.delete("1.0", tk.END)
+    WarningText.config(text="Cleared screen")
+
+def OnList(keyword):
+    if keyword.upper() == "HELP":
+        ListHelp(5)
+        return
+    global TextEditor
+    WarningText
+
+    TextEditor.insert("end-1c", "\n\n" + (lineChar * 59) + "\n\nList of files in directory:\n\n" + (lineChar * 59) + "\n\n")
+    for filename in os.listdir(currentPythonFilePath + "/Files"):
+        TextEditor.insert("end-1c", filename + "\n")
+    TextEditor.insert("end-1c", "\n" + (lineChar * 59) + "\n")
+    WarningText.config(text="Listed available files")
+    TextEditor.see(tk.END)
 
 def SetBGColor(color):
     if color.upper() == "HELP":
@@ -247,14 +287,19 @@ def SetFGColor(color):
         WarningText.config(text="Invalid color")
 
 def SetColorscheme(colorscheme):
-    if colorscheme.upper() == "HELP":
-        ListHelp(8)
-        return
-
     global CommandEntry
     global TextEditor
     global WarningText
     global NavFrame
+    if colorscheme.upper() == "HELP":
+        # Lists the colorschemes in addition to normal help information
+        ListHelp(8)
+        TextEditor.insert("end-1c", "List of acceptable colorschemes:\n" + (lineChar * 59) + "\n\n")
+        for theme in themes:
+            TextEditor.insert("end-1c", theme + "\n")
+        TextEditor.insert("end-1c", "\n" + (lineChar * 59) + "\n")
+        TextEditor.see(tk.END)
+        return
 
     if colorscheme.upper() in themes:
         bg, fg, grey, warn = themeCodes[themes.index(colorscheme.upper())]
@@ -263,24 +308,8 @@ def SetColorscheme(colorscheme):
         WarningText.config(bg=grey, fg=warn)
         NavFrame.config(bg=grey)
         WarningText.config(text="Colorscheme set to " + colorscheme.upper())
-    elif colorscheme.upper() == "LIST" or colorscheme.upper() == "HELP" or colorscheme.upper() == "LS":
-        TextEditor.insert("end-1c", "\n\n" + (lineChar * 59) + "\nLIST OF COLORSCHEMES:\n" + (lineChar * 59) + "\n\n")
-        for theme in themes:
-            TextEditor.insert("end-1c", theme + "\n")
-        TextEditor.insert("end-1c", "\n" + (lineChar * 59) + "\n")
-        TextEditor.see(tk.END)
     else:
         WarningText.config(text="Invalid colorscheme")
-
-
-def OnNew(keyword, event=None):
-    if keyword.upper() == "HELP":
-        ListHelp(4)
-        return
-    global TextEditor
-    global WarningText
-    TextEditor.delete("1.0", tk.END)
-    WarningText.config(text="Cleared screen")
 
 def OnReset(keyword):
     if keyword.upper() == "HELP":
@@ -291,7 +320,13 @@ def OnReset(keyword):
     global WarningText
     WarningText.config(text="Type 'help' for list of commands")
 
-def OnHelp():
+def OnEscape(keyword="", event=None):
+    if keyword.upper() == "HELP":
+        ListHelp(13)
+        return
+    root.destroy()
+
+def OnHelp(keyword):
     global TextEditor
     global WarningText
 
@@ -318,33 +353,11 @@ def ListHelp(commandId):
     WarningText.config(text="Listed syntax")
     TextEditor.see(tk.END)
 
-def OnList(keyword):
-    if keyword.upper() == "HELP":
-        ListHelp(5)
-        return
-    global TextEditor
-    WarningText
-
-    TextEditor.insert("end-1c", "\n\n" + (lineChar * 59) + "\n\nList of files in directory:\n\n" + (lineChar * 59) + "\n\n")
-    for filename in os.listdir(currentPythonFilePath + "/Files"):
-        TextEditor.insert("end-1c", filename + "\n")
-    TextEditor.insert("end-1c", "\n" + (lineChar * 59) + "\n")
-    WarningText.config(text="Listed available files")
-    TextEditor.see(tk.END)
-
-def OnDelete(path):
-    if path.upper() == "HELP":
-        ListHelp(2)
-        return
-    global WarningText
-    try:
-        os.remove(currentPythonFilePath + "/Files/" + path)
-        WarningText.config(text="Deleted file " + path.upper())
-    except:
-        WarningText.config(text="Error deleting file")
-
 # Mirrors text in the textbox
-def OnFlip():
+def OnFlip(keyword):
+    if keyword.upper() == "HELP":
+        ListHelp(12)
+        return
     global TextEditor
     text = TextEditor.get("1.0", "end-1c")
     TextEditor.delete("1.0", tk.END)
@@ -352,6 +365,9 @@ def OnFlip():
 
 # Changes the justification of the main textbox
 def OnCenter(doCenter = "on"):
+    if doCenter.upper() == "HELP":
+        ListHelp(13)
+        return
     global TextEditor
     global WarningText
     if doCenter.upper() == "ON":
@@ -388,10 +404,6 @@ def OnMinimize(event):
     isFullscreen = not isFullscreen
     root.attributes("-fullscreen", isFullscreen)
 
-def OnEscape(event=None):
-    root.destroy()
-
-
 root = tk.Tk()
 root.title = rootName
 root.config(bg="#000")
@@ -417,7 +429,7 @@ CommandEntry.grid(row=0, column=0, pady=25, ipady=50, ipadx=50, sticky="we")
 CommandEntry.focus()
 
 # Bind shortcuts to the editor:
-root.bind("<Control-Escape>", OnEscape)
+root.bind("<Control-Escape>", lambda event: OnEscape(""))
 root.bind("<Escape>", OnMinimize)
 root.bind("<Control-s>", OnSaveShortcut)
 root.bind("<Control-S>", OnSaveShortcut)
