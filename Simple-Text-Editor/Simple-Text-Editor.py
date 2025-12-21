@@ -2,10 +2,11 @@
 # Author: Samuel Johnson
 # Program: Simple-Text-Editor
 # Use: A rather gimmicky Tkinter text editor that uses a terminal rather than a toolbar or buttons
-# Last Updated: 12/21/2025
+# Last Updated: 12/20/2025
 #
 # TODO: Maybe convert this over to customtkinter or Kivy, since I really want to have more font control
 # TODO: Overhaul the ExecuteCommand() function to rely less on 'if' statements
+# TODO: Add 'HELP' keywords to the remaining commands
 # TODO: I might split this single document into several to avoid having one long file as this improves
 # TODO: Focus on cross-OS functionality
 # TODO: Better error handling/explanation + input sanitization
@@ -25,7 +26,7 @@ baseFont = ("Monospace", 24)
 bgColor = "#090952"
 fgColor = "#FFFFFF"
 greyColor = "#383838"
-lineChar = "-"
+lineChar = "—"
 global isFullscreen
 isFullscreen = True
 global currentlyOpenedFile
@@ -70,20 +71,20 @@ commandsHelp = [
 ]
 
 commandsInDepthHelp = [
-    "Aliases: LOAD, OPEN, L; \nSyntax: LOAD <Filename>; \nExample: load test.txt\n",
-    "Aliases: SAVE, S; \nSyntax: SAVE <Filename>; \nExample: save test.txt\n",
-    "Aliases: DELETE, DESTROY, DEL; \nSyntax: DELETE <Filename>; \nExample: delete test.txt\n",
-    "Aliases: BROWSE, FIND; \nSyntax: BROWSE; \nExample: browse\n",
-    "Aliases: NEW, CLEAR, WIPE; \nSyntax: NEW; \nExample: new\n",
-    "Aliases: LIST, LS, FILES; \nSyntax: LIST; \nExample: ls\n",
-    "Aliases: BGCOLOR, COLOR, BGC, C; \nSyntax: BGCOLOR <Hex string>; \nExample: bgcolor #FF0000\n",
-    "Aliases: FGCOLOR, FGC; \nSyntax: FGCOLOR <Hex string>; \nExample: fgcolor #006600\n",
-    "Aliases: COLORSCHEME, CS; \nSyntax: COLORSCHEME <Colorscheme name>; \nExample: colorscheme moon\n",
-    "Aliases: RESET, REBOOT, REFRESH; \nSyntax: REBOOT; \nExample: reboot\n",
-    "Aliases: EXIT, QUIT, STOP, CLOSE; \nSyntax: CLOSE; \nExample: close\n",
-    "Aliases: HELP, ?; \nSyntax: HELP; \nExample: help\n",
-    "Aliases: FLIP, MIRROR; \nSyntax: FLIP; \nExample: flip\n",
-    "Aliases: CENTER, JUSTIFY; \nSyntax: CENTER; \nExample: center on\n",
+    "Aliases: LOAD, OPEN, L; \nSyntax: LOAD <Filename>; \nExample(s): 'load test.txt', 'l test.txt'\n",
+    "Aliases: SAVE, S; \nSyntax: SAVE <Filename>; \nExample(s): 'save test.txt', 's text.txt'\n",
+    "Aliases: DELETE, DESTROY, DEL; \nSyntax: DELETE <Filename>; \nExample(s): 'delete test.txt', 'del test.txt'\n",
+    "Aliases: BROWSE, FIND; \nSyntax: BROWSE; \nExample(s): 'browse', 'find'\n",
+    "Aliases: NEW, CLEAR, WIPE; \nSyntax: NEW; \nExample(s): 'new', 'wipe'\n",
+    "Aliases: LIST, LS, FILES; \nSyntax: LIST; \nExample(s): 'list', 'ls'\n",
+    "Aliases: BGCOLOR, COLOR, BGC, C; \nSyntax: BGCOLOR <Hex string>; \nExample(s): 'bgcolor #FF0000', 'bgc F00', 'c FF0000'\n",
+    "Aliases: FGCOLOR, FGC; \nSyntax: FGCOLOR <Hex string>; \nExample(s): 'fgcolor #FF0000', 'fgc F00', 'fgc FF0000'\n",
+    "Aliases: COLORSCHEME, CS; \nSyntax: COLORSCHEME <Colorscheme name>; \nExample(s): 'colorscheme moon', 'cs machine'\n",
+    "Aliases: RESET, REBOOT, REFRESH; \nSyntax: REBOOT; \nExample(s): 'reset', 'reboot'\n",
+    "Aliases: EXIT, QUIT, STOP, CLOSE; \nSyntax: EXIT; \nExample(s): 'exit', 'close'\n",
+    "Aliases: HELP, ?; \nSyntax: HELP; \nExample(s): 'help', '?'\n",
+    "Aliases: FLIP, MIRROR; \nSyntax: FLIP; \nExample(s): 'flip', 'mirror'\n",
+    "Aliases: CENTER, JUSTIFY; \nSyntax: CENTER; \nExample(s): 'center on', 'justify off'\n",
 ]
 
 themes = [
@@ -196,8 +197,10 @@ def OnLoad(path, isBrowse = False, event=None):
         WarningText.config(text="Loaded file " + path)
         TextEditor.see(tk.END)
         currentlyOpenedFile = path
+    except FileNotFoundError:
+        WarningText.config(text="Error: File not found")
     except:
-        WarningText.config(text="Error opening file")
+        WarningText.config(text="Error loading file")
 
 def OnSave(path, event=None):
     if path.upper() == "HELP":
@@ -212,6 +215,8 @@ def OnSave(path, event=None):
         file.writelines(text)
         file.close()
         WarningText.config(text="Saved file " + path)
+    except FileNotFoundError:
+        WarningText.config(text="Error: File not found")
     except:
         WarningText.config(text="Error saving file")
 
@@ -227,6 +232,8 @@ def OnDelete(path):
     try:
         os.remove(currentPythonFilePath + "/Files/" + path)
         WarningText.config(text="Deleted file " + path.upper())
+    except FileNotFoundError:
+        WarningText.config(text="Error: File not found")
     except:
         WarningText.config(text="Error deleting file")
         
@@ -308,14 +315,14 @@ def SetColorscheme(colorscheme):
         NavFrame.config(bg=grey)
         WarningText.config(text="Colorscheme set to " + colorscheme.upper())
     else:
-        WarningText.config(text="Invalid colorscheme")
+        WarningText.config(text="Invalid colorscheme name")
 
 def OnReset(keyword):
     if keyword.upper() == "HELP":
         ListHelp(9)
         return
     SetColorscheme("OFF")
-    OnNew()
+    OnNew("")
     global WarningText
     WarningText.config(text="Type 'help' for list of commands")
 
@@ -329,7 +336,7 @@ def OnHelp(keyword):
     global TextEditor
     global WarningText
 
-    TextEditor.insert("end-1c", "\n\n" + (lineChar * 59) + "\n\nList of commands:\n\n" + (lineChar * 59) + "\n\n")
+    TextEditor.insert("end-1c", "\n" + (lineChar * 59) + "\n\nList of commands:\n\n" + (lineChar * 59) + "\n\n")
 
     for command in commands:
         commandString = ""
@@ -339,6 +346,10 @@ def OnHelp(keyword):
         TextEditor.insert("end-1c", (f"{str(commandString):<32}" + commandsHelp[commands.index(command)]))
 
     TextEditor.insert("end-1c", "\n" + (lineChar * 59) + "\n")
+    TextEditor.insert("end-1c", "Hint: Type 'help' after a command for more information\n")
+    TextEditor.insert("end-1c", "Hint: Press ESC to exit fullscreen mode\n")
+    TextEditor.insert("end-1c", "Hint: You can close the app by pressing CTRL+ESC\n")
+    TextEditor.insert("end-1c", (lineChar * 59) + "\n")
     WarningText.config(text="Listed commands")
     TextEditor.see(tk.END)
 
