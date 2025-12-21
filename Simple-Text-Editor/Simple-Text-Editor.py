@@ -6,7 +6,6 @@
 #
 # TODO: Maybe convert this over to customtkinter or Kivy, since I really want to have more font control
 # TODO: Overhaul the ExecuteCommand() function to rely less on 'if' statements
-# TODO: Add 'HELP' keywords to the remaining commands
 # TODO: I might split this single document into several to avoid having one long file as this improves
 # TODO: Focus on cross-OS functionality
 # TODO: Better error handling/explanation + input sanitization
